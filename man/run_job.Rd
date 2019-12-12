@@ -37,10 +37,10 @@ details on API calls please see the official documentation at
 \url{https://docs.databricks.com/dev-tools/api/latest/}.
 }
 \examples{
-## Run a job
+# Run a job
 run_job(job_id = 206, workspace = 'https://eastus2.azuredatabricks.net', token = 'dapi1903210980d9a0ads0g9fas')
 
-## Run a job by name
+# Run a job by name
 run_job(name = "My Unique Job Name", workspace = workspace, token = token)
 
 }

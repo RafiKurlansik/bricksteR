@@ -22,7 +22,7 @@
 #'
 import_to_workspace <- function(file, notebook_path,
                                 workspace, token = NULL,
-                                overwrite = "true", verbose = T) {
+                                overwrite = "false", verbose = T) {
 
   ## Parameters for file upload
   files <- list(
@@ -61,7 +61,7 @@ import_to_workspace <- function(file, notebook_path,
 
       message(paste0(
         "Status: ", res$status_code[1],
-        "\nObject: ", file,
+        "\n\nObject: ", file,
         " was added to the workspace at ", notebook_path
       ))
 

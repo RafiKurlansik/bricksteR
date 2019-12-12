@@ -6,15 +6,20 @@
 \usage{
 create_and_run_job(
   name = "R Job",
+  file = NULL,
   notebook_path,
   job_config = "default",
   workspace,
-  token = NULL
+  token = NULL,
+  ...
 )
 }
 \arguments{
 \item{name}{A string representing the name of the job.  It is encouraged
 to choose a unique name for each job.}
+
+\item{file}{The path to a local .R or .Rmd file.  Will be imported to the
+workspace at the \emph{notebook_path}.}
 
 \item{notebook_path}{A string representing the path to a Databricks notebook in the
 workspace.}
@@ -29,6 +34,9 @@ instance. E.g., "https://eastus2.azuredatabricks.net" or
 \item{token}{A valid authentication token generated via User Settings in
 Databricks or via the Databricks REST API 2.0.  If none is provided,
 netrc will be used.}
+
+\item{...}{additional arguments to be passed, i.e., overwrite = 'false' when
+importing a file to run as a job.}
 }
 \value{
 A list with three elements containing the values of \code{create_job},
@@ -55,7 +63,7 @@ results <- create_and_run_job(name = "Forecasting Report",
                               workspace = "https://eastus2.azuredatabricks.net",
                               token = "dapi2930482309ddavascscq")
 
-## Get each response
+# Get each response
 job <- results$job
 run <- results$run
 run_status <- results$run_status

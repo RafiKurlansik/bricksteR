@@ -9,7 +9,7 @@ import_to_workspace(
   notebook_path,
   workspace,
   token = NULL,
-  overwrite = "true",
+  overwrite = "false",
   verbose = T
 )
 }

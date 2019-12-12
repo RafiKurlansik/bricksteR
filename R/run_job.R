@@ -22,23 +22,23 @@
 #' @return The API response.
 #'
 #' @examples
-#' ## Run a job
+#' # Run a job
 #' run_job(job_id = 206, workspace = 'https://eastus2.azuredatabricks.net', token = 'dapi1903210980d9a0ads0g9fas')
 #'
-#' ## Run a job by name
+#' # Run a job by name
 #' run_job(name = "My Unique Job Name", workspace = workspace, token = token)
 #'
 run_job <- function(job_id = NULL, name = NULL, workspace, token = NULL, verbose = T) {
 
-  ## If name provided, call jobs_list to find the job ID
+  # If name provided, call jobs_list to find the job ID
   if (!is.null(name)) {
 
     jobs_tidy <- jobs_list(workspace = workspace, token = token, verbose = F)$response_tidy
     matches <- jobs_tidy[grepl(pattern = paste0("^", name,"$"), jobs_tidy$settings.name), ]
 
-    ## If there is more than one job with the same name
+    # If there is more than one job with the same name
     if (length(matches$settings.name) > 1){
-      
+
       message(paste0("Found multiple jobs with name \"", name, "\":\n"))
       message(paste0(
         capture.output(
@@ -47,24 +47,24 @@ run_job <- function(job_id = NULL, name = NULL, workspace, token = NULL, verbose
       return(message(paste0("\n\nPlease use a job ID or give the job a unique name.\n")))
     }
 
-    ## If no matches found
+    # If no matches found
     else if (length(matches$settings.name) < 1) {
       message(paste0("No job with name \"", name, "\" found.\n Please try a different name."))
       stop("Couldn't find a job with that name.")
     }
 
-    ## If exact match fetch the job id for the run config
+    # If exact match fetch the job id for the run config
     run_config <- paste0('{ "job_id": ', matches$job_id, ' }')
 
     message(paste0("Job \"", name, "\" found with ", matches$job_id, "."))
   }
 
-  ## If no name provided, use job_id param
+  # If no name provided, use job_id param
   else{
     run_config <- paste0('{ "job_id": ', job_id, ' }')
   }
 
-  ## Make request with netrc by default
+  # Make request with netrc by default
   if (is.null(token)) {
 
     use_netrc <- httr::config(netrc = 1)
@@ -76,19 +76,19 @@ run_job <- function(job_id = NULL, name = NULL, workspace, token = NULL, verbose
 
   else {
 
-    ## Authenticate with token
+    # Authenticate with token
     headers <- c(
       Authorization = paste("Bearer", token)
     )
 
-    ## Make request
+    # Make request
     res <- httr::POST(url = paste0(workspace, "/api/2.0/jobs/run-now"),
                       httr::add_headers(.headers = headers),
                       httr::content_type_json(),
                       body = run_config)
   }
 
-  ## Handling successful API response
+  # Handling successful API response
   if (res$status_code[1] == 200) {
 
     run_id <- jsonlite::fromJSON(rawToChar(res$content))$run_id
@@ -119,7 +119,7 @@ run_job <- function(job_id = NULL, name = NULL, workspace, token = NULL, verbose
 
   }
 
-  ## Return response
+  # Return response
   reslist <- list(run_response = res,
                   run_id = run_id,
                   number_in_job = number_in_job)

@@ -6,16 +6,21 @@
 \usage{
 create_job(
   name = "R Job",
+  file = NULL,
   notebook_path,
   job_config = "default",
   workspace,
   token = NULL,
-  verbose = T
+  verbose = T,
+  ...
 )
 }
 \arguments{
 \item{name}{A string representing the name of the job.  It is encouraged
 to choose a unique name for each job.}
+
+\item{file}{The path to a local .R or .Rmd file.  Will be imported to the
+workspace at the \emph{notebook_path}.}
 
 \item{notebook_path}{A string representing the path to a Databricks notebook in the
 workspace.}
@@ -32,6 +37,9 @@ Databricks or via the Databricks REST API 2.0.  If none is provided, netrc will 
 
 \item{verbose}{If true, will pretty print the success or failure of the
 request and add a `job_id` variable to the R environment.  Defaults to TRUE.}
+
+\item{...}{additional arguments to be passed, i.e., overwrite = 'false' when
+importing a file to run as a job.}
 }
 \value{
 A list with two elements - the complete API response and the job ID.
@@ -46,12 +54,12 @@ on API calls please see the official documentation at
 \url{https://docs.databricks.com/dev-tools/api/latest/}.
 }
 \examples{
-## Default JSON used
-create_job(path = "/Shared/R/brickster_tutorial", ## A notebook in the workspace
- workspace = "https://dbc-z64b06b4-d212.cloud.databricks.com", ## The workspace of your Databricks instance
-  token = "dapi30912309sdfdsa9iu09") ## The valid auth token
+# Default JSON used
+create_job(path = "/Shared/R/brickster_tutorial", # A notebook in the workspace
+ workspace = "https://dbc-z64b06b4-d212.cloud.databricks.com", # The workspace of your Databricks instance
+  token = "dapi30912309sdfdsa9iu09") # The valid auth token
 
-## Passing custom JSON
+# Passing custom JSON
 job_config <- '{"name": "New R Job",
                    "new_cluster": {
                        "spark_version": "5.5.x-scala2.11",
@@ -71,7 +79,7 @@ job_config <- '{"name": "New R Job",
                    }
                  }'
 
-## Specifying the path now unnecessary
+# Specifying the path now unnecessary
 create_job(job_config,
 workspace = "https://dbc-z64b06b4-d212.cloud.databricks.com",
 token = "dapi310240980a9dgqwebdsfadsf21")
