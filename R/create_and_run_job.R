@@ -66,6 +66,13 @@ create_and_run_job <- function(name = "R Job", file = NULL, notebook_path,
     )))
   }
 
+  # Check for JSON file with job config
+  if (file.exists(job_config)) {
+
+    job_config <- toJSON(fromJSON(job_config), auto_unbox = T)
+
+  }
+
   # Create the job
   job <- create_job(name = name,
                     file = file,

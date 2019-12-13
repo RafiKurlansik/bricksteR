@@ -74,12 +74,19 @@ create_job <- function(name = "R Job",
                                          verbose = F)
   }
 
-  # If  import fails, exit
+  # If import fails, exit
   if (import_response$status_code[1] != 200) {
     return(message(paste0(
       "Unable to import file.  Please check the response code:\n\n",
       jsonlite::prettify(import_response)
     )))
+  }
+
+  # Check for job config in JSON file
+  if (file.exists(job_config)) {
+
+    job_config <- toJSON(fromJSON(job_config), auto_unbox = T)
+
   }
 
   # Default small cluster spec
