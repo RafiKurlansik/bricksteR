@@ -14,7 +14,7 @@
 #' workspace.
 #' @param file The path to a local .R or .Rmd file.  Will be imported to the
 #' workspace at the \emph{notebook_path}.
-#' @param job_config A JSON formatted string specifying the details of the job, i.e., the
+#' @param job_config A JSON formatted string or file specifying the details of the job, i.e., the
 #'  name, cluster spec, and so on.
 #' @param workspace A string representing the web workspace of your Databricks
 #' instance. E.g., "https://eastus2.azuredatabricks.net" or

@@ -35,7 +35,7 @@ delete_job <- function(job_id = NULL, name = NULL, workspace, token = NULL, verb
   if (!is.null(name)) {
 
     jobs_tidy <- jobs_list(workspace = workspace, token = token, verbose = F)$response_tidy
-    matches <- jobstidy[grepl(pattern = paste0("^", name,"$"), jobstidy$settings.name), ]
+    matches <- jobs_tidy[grepl(pattern = paste0("^", name,"$"), jobs_tidy$settings.name), ]
 
     ## If there is more than one job with the same name
     if (length(matches$settings.name) > 1){
@@ -44,14 +44,16 @@ delete_job <- function(job_id = NULL, name = NULL, workspace, token = NULL, verb
         capture.output(
           jobs_tidy[grepl(pattern = paste0("^", name,"$"), jobs_tidy$settings.name), ]),
         collapse = "\n"))
-      message(paste0("\n\nPlease use a job ID or give the job a unique name.\n"))
-      stop("Too many jobs with that name.")
+      return(message(
+        paste0("\n\nPlease use a job ID or give the job a unique name.\n",
+      "Too many jobs with that name.")
+      ))
     }
 
     ## If no matches found
     else if (length(matches$settings.name) < 1) {
       message(paste0("No job with name \"", name, "\" found.\n Please try a different name."))
-      stop("Couldn't find a job with that name.")
+      return("Couldn't find a job with that name.")
     }
 
     ## If exact match fetch the job id

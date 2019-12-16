@@ -25,7 +25,7 @@ workspace at the \emph{notebook_path}.}
 \item{notebook_path}{A string representing the path to a Databricks notebook in the
 workspace.}
 
-\item{job_config}{A JSON formatted string specifying the details of the job, i.e., the
+\item{job_config}{A JSON formatted string or file specifying the details of the job, i.e., the
 name, cluster spec, and so on.}
 
 \item{workspace}{A string representing the web workspace of your Databricks
