@@ -9,12 +9,9 @@
 #' on API calls please see the official documentation at
 #' \url{https://docs.databricks.com/dev-tools/api/latest/}.
 #'
+#' @param job_id A number representing the unique identifier of a job on Databricks.
 #' @param name A string representing the name of the job.  It is encouraged
 #' to choose a unique name for each job.
-#' @param notebook_path A string representing the path to a Databricks
-#' notebook in the workspace.
-#' @param file The path to a local .R or .Rmd file.  Will be imported to the
-#' workspace at the \emph{notebook_path}.
 #' @param new_config A JSON formatted string or file specifying the details of
 #'  the job, i.e., the name, cluster spec, and so on.
 #' @param workspace A string representing the web workspace of your Databricks
@@ -24,13 +21,12 @@
 #' Databricks or via the Databricks REST API 2.0.  If none is provided,
 #' netrc will be used.
 #' @param verbose If true, will pretty print the success or failure of the
-#' request and add a `job_id` variable to the R environment.  Defaults to TRUE.
-#' @param ... additional arguments to be passed, i.e., overwrite = 'false' when
-#' importing a file to run as a job.
+#' request.  Defaults to TRUE.
 #' @return The complete API response.
 #' @examples
 #' # JSON string or file path can be passed
 #' new_config <- "/configs/nightly_model_training.json"
+#'
 #' reset_job(job_id = 30198, new_config, workspace)
 #'
 #' # Reset by name
