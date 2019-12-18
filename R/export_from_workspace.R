@@ -15,9 +15,9 @@
 #' @param format A string.  This specifies the format of the exported file.
 #' By default, this is SOURCE. However it may be one of: SOURCE, HTML,
 #' JUPYTER, DBC. The value is case sensitive.
-#' @param direct_download A string.  Flag to enable direct download. If it is
-#' true, the response will be the exported file itself. Otherwise, the
-#' response contains content as base64 encoded string. Defaults to 'false'.
+#' @param direct_download A string.  Flag to enable direct download. If
+#' 'true', the response will be the exported file itself. Otherwise, the
+#' response contains content as base64 encoded string. Defaults to 'true'.
 #' @param filename Optional string representing the path to save the file locally.
 #' @param workspace A string representing the web workspace of your Databricks
 #' instance. E.g., "https://eastus2.azuredatabricks.net" or
@@ -46,7 +46,7 @@
 #'                       workspace = workspace,
 #'                       token = token)
 export_from_workspace <- function(workspace_path, format,
-                                  direct_download = 'false', filename = NULL,
+                                  direct_download = 'true', filename = NULL,
                                   workspace, token = NULL, verbose = T) {
 
   if (is.null(token)) {
@@ -77,7 +77,7 @@ export_from_workspace <- function(workspace_path, format,
                                   "/api/2.0/workspace/export?format=",
                                   format,
                                   "&path=",
-                                  utils::URLencode(path),
+                                  utils::URLencode(workspace_path),
                                   "&direct_download=",
                                   direct_download),
                      httr::content_type_json())
@@ -90,7 +90,7 @@ export_from_workspace <- function(workspace_path, format,
 
       message(paste0(
         "Status: ", res$status_code[1],
-        "\n\nWorkspace object: ", notebook_path,
+        "\n\nWorkspace object: ", workspace_path,
         " was exported successfully. "
       ))
 
@@ -106,12 +106,15 @@ export_from_workspace <- function(workspace_path, format,
   }
 
   if (!is.null(file)) {
-    fileConn <- file(filename)
-    writeLines(rawToChar(res$content), fileConn)
-    close(fileConn)
+
+    conn <- file(filename, "wb")
+    writeBin(content(res, as = "text"), conn)
+    close(conn)
 
     message(paste0("File downloaded here: ", filename))
-  }
+
+    }
+
 
   ## Return API response
   res
