@@ -7,7 +7,7 @@
 export_from_workspace(
   workspace_path,
   format,
-  direct_download = "false",
+  direct_download = "true",
   filename = NULL,
   workspace,
   token = NULL,
@@ -22,9 +22,9 @@ in the Databricks workspace.}
 By default, this is SOURCE. However it may be one of: SOURCE, HTML,
 JUPYTER, DBC. The value is case sensitive.}
 
-\item{direct_download}{A string.  Flag to enable direct download. If it is
-true, the response will be the exported file itself. Otherwise, the
-response contains content as base64 encoded string. Defaults to 'false'.}
+\item{direct_download}{A string.  Flag to enable direct download. If
+'true', the response will be the exported file itself. Otherwise, the
+response contains content as base64 encoded string. Defaults to 'true'.}
 
 \item{filename}{Optional string representing the path to save the file locally.}
 

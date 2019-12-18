@@ -64,22 +64,22 @@ create_job <- function(name = "R Job",
                        verbose = T,
                        ...) {
 
-  # Import R file to workspace if needed
+    # Import R file to workspace if needed
   if (!is.null(file)) {
-  import_response <- import_to_workspace(file = file,
-                                         notebook_path = notebook_path,
-                                         overwrite = ...,
-                                         workspace = workspace,
-                                         token = token,
-                                         verbose = F)
-  }
+    import_response <- import_to_workspace(file = file,
+                                           notebook_path = notebook_path,
+                                           overwrite = ...,
+                                           workspace = workspace,
+                                           token = token,
+                                           verbose = F)
+    # If import fails, exit
+    if (import_response$status_code[1] != 200) {
 
-  # If import fails, exit
-  if (import_response$status_code[1] != 200) {
-    return(message(paste0(
-      "Unable to import file.  Please check the response code:\n\n",
-      jsonlite::prettify(import_response)
-    )))
+      return(message(paste0(
+        "Unable to import file.  Please check the response code:\n\n",
+        jsonlite::prettify(import_response)
+      )))
+    }
   }
 
   # Check for job config in JSON file

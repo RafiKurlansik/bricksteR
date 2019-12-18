@@ -22,12 +22,23 @@ While Databricks supports R users through interactive notebooks and a hosted ins
 Here are some highlights of what you can do with `bricksteR`:
 
 * Import any .R or .Rmd file into the Databricks Workspace, from anywhere
-* Create and run a new job in a single stroke
-* Check on the status of a job run by name **or** id
+* Create and run a new job in a single function
+* Check on the status of a job run by *name* or id
+* Use JSON files or strings for job configurations
 
-## Getting Started
+## Table of Contents
 
-##### Get the Package
+* [Installation & Authentication](#installation)
+* [Importing R Scripts to Databricks](#importing-r-scripts-to-databricks)
+* [Jobs](#jobs)
+  * [Create and Run a Job](#create-and-run-a-job)
+  * [View Jobs and Runs](#view-jobs-and-runs)
+  * [Reset a Job](#reset-a-job)
+  * [Delete a Job](#delete-a-job)
+* [Export from Databricks](#export-from-databricks)
+
+
+## Installation
 
 The first thing you'll need to get started is to install the package from GitHub.  
 
@@ -36,7 +47,7 @@ devtools::install_github("RafiKurlansik/bricksteR")
 library(bricksteR)
 ```
 
-##### Authentication
+#### Authentication
 
 You will need an [Access Token](https://docs.databricks.com/dev-tools/api/latest/authentication.html#authentication) in order to authenticate with the Databricks REST API.  
 
@@ -50,10 +61,10 @@ password <personal-access-token-value>
 
 You can also authenticate by [passing a token to Bearer authentication](https://docs.databricks.com/dev-tools/api/latest/authentication.html#pass-token-to-bearer-authentication).  To be clear, **it is not recommended to store your credentials directly in your code**.  If you are working on Databricks in a notebook, you can use `dbutils.secrets.get()` to avoid printing your token.
 
-Finally, you will need to identify the domain URL of your Databricks instance.  On AWS this typically has the form `https://dbc-a64b1209f-d811.cloud.databricks.com`, or if you have a vanity URL it may look more like `https://mycompany.cloud.databricks.com`.  On Azure it will have the form `https://eastus2.azuredatabricks.net`, or whichever region your instance is located in.
+Finally, you will need to identify the workspace URL of your Databricks instance.  On AWS this typically has the form `https://dbc-a64b1209f-d811.cloud.databricks.com`, or if you have a vanity URL it may look more like `https://mycompany.cloud.databricks.com`.  On Azure it will have the form `https://eastus2.azuredatabricks.net`, or whichever region your instance is located in.
 
 ```{r message=FALSE}
-domain <- "https://demo.cloud.databricks.com"
+workspace <- "https://demo.cloud.databricks.com"
 
 # If running in a Databricks Notebook
 # token <- dbutils.secrets.get(scope = "bricksteR", key = "rest_api")
@@ -65,14 +76,14 @@ A common use case is moving R scripts or R Markdown files to Databricks to run a
 
 ```{r}
 import_to_workspace(file = "/Users/rafi.kurlansik/RProjects/AnRMarkdownDoc.Rmd",
-                    notebook_path = "/Users/rafi.kurlansik@databricks.com/AnRMarkDownDoc",
-                    domain = domain,
+                    notebook_path = "/Users/rafi.kurlansik@databricks.com/AnRMarkdownDoc",
+                    workspace = workspace,
                     overwrite = 'true')
 ```
 
 ## Jobs
 
-##### Create a Job
+### Create and Run a Job
 
 Now that the file is in our workspace, we can create a job that will run it as a [Notebook Task](https://docs.databricks.com/dev-tools/api/latest/jobs.html#jobsnotebooktask).  
 
@@ -80,12 +91,12 @@ Now that the file is in our workspace, we can create a job that will run it as a
 new_job <- create_job(notebook_path = "/Users/rafi.kurlansik@databricks.com/AnRMarkDownDoc", 
                        name = "Beer Sales Forecasting Job",
                        job_config = "default",
-                       domain = domain)
+                       workspace = workspace)
 
 job_id <- new_job$job_id
 ```
 
-Each job requires a `job_config`, which is a JSON formatted string specifyiing the type of infrastructure the job will run on.  If none is supplied, a 'default' cluster is created with 1 driver and 2 workers.  Here's what that default configuration looks like:
+Each job requires a `job_config`, which is a JSON file or JSON formatted string specifying (at a minimum) the task and type of infrastructure required.  If no config is supplied, a 'default' cluster is created with 1 driver and 2 workers.  Here's what that default configuration looks like:
 
 ```r
 # Default JSON configs
@@ -112,50 +123,74 @@ Each job requires a `job_config`, which is a JSON formatted string specifyiing t
 ```
 Where `name` is the name of your job and `notebook_path` is the path to the notebook in your workspace that will be run. 
 
-##### Run a Job
 Creating a job by itself will not actually execute any code.  If we want our beer forecast - and we do - then we'll need to actually run the job.  We can run the job by id, or by name.
 
 ```{r}
 # Specifying the job_id
-run_job(job_id = job_id, domain = domain, token = NULL)
+run_job(job_id = job_id, workspace = workspace, token = NULL)
 
 # Specifying the job name
-run_job(name = "Beer Sales Forecasting Job", domain = domain, token = NULL)
+run_job(name = "Beer Sales Forecasting Job", workspace = workspace, token = NULL)
 ```
 
 Running a job by name is convenient, but there's nothing stopping you from giving two jobs the same name on Databricks.  The way `bricksteR` handles those conflicts today is by forcing you to use the unique Job ID or rename the job you want to run with a distinct moniker.
 
-##### Create and Run a Job
-Like to move fast?  Well, now you can create and run a job in a single line:
+If you want to run a job immediately, one option is to use the `create_and_run_job()` function:
 
 ```{r}
-running_new_job <- create_and_run_job(name = "Lager Sales Forecasting Job", notebook_path = "/Users/rafi.kurlansik@databricks.com/AnRMarkDownDoc", 
-                                      job_config = "default", domain = domain)
+# By specifying a local file we implicitly import it
+running_new_job <- create_and_run_job(file = "/Users/rafi.kurlansik/agg_and_widen.R",
+                                      name = "Lager Sales Forecasting Job",
+                                      notebook_path = "/Users/rafi.kurlansik@databricks.com/agg_and_widen", 
+                                      job_config = "default",
+                                      workspace = workspace)
 ```
 
-##### View Jobs and Runs
+### View Jobs and Runs
 There are two handy functions that will return a list of Jobs and their runs - `jobs_list()` and `runs_list()`.  One of the objects returned is a concise R dataframe that allows for quick inspection.
 
 ```{r}
-jobs <- jobs_list(domain = domain)
-beer_runs <- runs_list(name = "Lager Sales Forecasting Job", domain = domain)
+jobs <- jobs_list(workspace = workspace)
+beer_runs <- runs_list(name = "Lager Sales Forecasting Job", workspace = workspace)
 
 head(jobs$response_tidy)
-head(beer_runs$response_df)
+head(beer_runs$response_tidy)
 ```
 
-##### Delete a Job
+### Reset a Job
+If you need to update the config for a job, use `reset_job()`.
+
+```{r eval=FALSE}
+# JSON string or file path can be passed
+new_config <- "/configs/nightly_model_training.json"
+
+reset_job(job_id = 31114, new_config, workspace = workspace)
+```
+
+### Delete a Job
 If you need to clean up a job from the workspace, use `delete_job()`.
 
 ```{r}
-delete_job(job_id = job_id, domain = domain)
+delete_job(job_id = job_id, workspace = workspace)
 ```
 
-## Conclusion and Future Plans
+## Export from Databricks
+To export notebooks from Databricks, use `export_from_workspace()`.  
+
+```{r eval = F}
+export_from_workspace(workspace_path = "/Users/rafi.kurlansik@databricks.com/AnRMarkdownDoc",
+                      format = "SOURCE",
+                      filename = "/Users/rafi.kurlansik/RProjects/anotherdoc.Rmd",
+                      workspace = workspace)
+```
+
+Passing a `filename` will save the exported data to your local file system.  Otherwise it will simply be returned as part of the API response. 
+
+## Future Plans
 
 That's about all there is to it to get started with automating R on Databricks!  Whether you are using `blastula` to email a report or are spinning up a massive cluster to perform ETL or model training, these APIs will make it easy for you to define, schedule, and monitor those jobs from R.  
 
-The near term plan for `bricksteR` is improve and simplify the existing code, then to continue adding functions that wrap around the Databricks REST API.  After that, I'd like to also add helper functions for working with DBFS to maintain R libraries and package versions.  All in due time. :)
-___
+I'd like to add support for DBFS, and provide additional tools for managing libraries.  
+_________
 
 Questions?  Feel free to contact me at [rafi.kurlansik@databricks.com](mailto:rafi.kurlansik@databricks.com).

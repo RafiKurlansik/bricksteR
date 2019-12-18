@@ -146,7 +146,13 @@ runs_list <- function(job_id = NULL, name = NULL, workspace, token = NULL,
   reslist <- list(response = res,
                   response_json = jsonlite::prettify(res),
                   response_list = jsonlite::fromJSON(rawToChar(res$content)),
-                  response_df = as.data.frame(jsonlite::fromJSON(rawToChar(res$content))))
+                  response_tidy = as.data.frame(
+                    jsonlite::fromJSON(
+                      rawToChar(res$content)))[, c("runs.job_id",
+                                                   "runs.run_id",
+                                                   "runs.creator_user_name",
+                                                   "runs.run_page_url")]
+                  )
 
   reslist
 }

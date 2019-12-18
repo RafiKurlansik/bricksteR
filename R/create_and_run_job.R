@@ -47,30 +47,10 @@ create_and_run_job <- function(name = "R Job", file = NULL, notebook_path,
                                job_config = "default", workspace,
                                token = NULL, ...) {
 
-  # If file provided, import it
-  if (!is.null(file)) {
-
-    import_response <- import_to_workspace(file = file,
-                                           notebook_path = notebook_path,
-                                           overwrite = ...,
-                                           workspace = workspace,
-                                           token = token,
-                                           verbose = F)
-  }
-
-  # If  import fails, exit
-  if (import_response$status_code[1] != 200) {
-    return(message(paste0(
-      "Unable to import file.  Please check the response code:\n\n",
-      jsonlite::prettify(import_response)
-    )))
-  }
-
   # Check for JSON file with job config
   if (file.exists(job_config)) {
 
     job_config <- toJSON(fromJSON(job_config), auto_unbox = T)
-
   }
 
   # Create the job
@@ -82,6 +62,9 @@ create_and_run_job <- function(name = "R Job", file = NULL, notebook_path,
                     token = token,
                     verbose = F,
                     overwrite = ...)
+  if (length(job) < 2) {
+    return(message("Unable to create job, please check API response."))
+  }
 
   # Run using job_id from create_job()
   run <- run_job(job_id = job$job_id[[1]],
