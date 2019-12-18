@@ -31,12 +31,11 @@ Here are some highlights of what you can do with `bricksteR`:
 * [Installation & Authentication](#installation)
 * [Importing R Scripts to Databricks](#importing-r-scripts-to-databricks)
 * [Jobs](#jobs)
-  * [Create and Run a Job](#create-and-run-a-job)
-  * [View Jobs and Runs](#view-jobs-and-runs)
-  * [Reset a Job](#reset-a-job)
-  * [Delete a Job](#delete-a-job)
+  + [Create and Run a Job](#create-and-run-a-job)
+  + [View Jobs and Runs](#view-jobs-and-runs)
+  + [Reset a Job](#reset-a-job)
+  + [Delete a Job](#delete-a-job)
 * [Export from Databricks](#export-from-databricks)
-
 
 ## Installation
 
@@ -190,7 +189,7 @@ Passing a `filename` will save the exported data to your local file system.  Oth
 
 That's about all there is to it to get started with automating R on Databricks!  Whether you are using `blastula` to email a report or are spinning up a massive cluster to perform ETL or model training, these APIs will make it easy for you to define, schedule, and monitor those jobs from R.  
 
-I'd like to add support for DBFS, and provide additional tools for managing libraries.  
+In 2020 I'd like to add support for DBFS operations, and provide additional tools for managing libraries.  
 _________
 
-Questions?  Feel free to contact me at [rafi.kurlansik@databricks.com](mailto:rafi.kurlansik@databricks.com).
+Questions or feedback?  Feel free to contact me at [rafi.kurlansik@databricks.com](mailto:rafi.kurlansik@databricks.com).
