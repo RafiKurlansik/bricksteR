@@ -49,7 +49,7 @@ You can also authenticate by [passing a token to Bearer authentication](https://
 Finally, you will need to identify the workspace URL of your Databricks instance. On AWS this typically has the form `https://dbc-a64b1209f-d811.cloud.databricks.com`, or if you have a vanity URL it may look more like `https://mycompany.cloud.databricks.com`. On Azure it will have the form `https://eastus2.azuredatabricks.net`, or whichever region your instance is located in.
 
 ``` r
-workspace <- "https://demo.cloud.databricks.com"
+workspace <- "https://demo.cloud.databricks.com/"
 
 # If running in a Databricks Notebook
 # token <- dbutils.secrets.get(scope = "bricksteR", key = "rest_api")
