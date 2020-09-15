@@ -43,6 +43,11 @@ If you are working locally or using [DB Connect](https://docs.databricks.com/dev
     machine <databricks-instance>
     login token
     password <personal-access-token-value>
+    
+    example:
+    machine company.cloud.databricks.com
+    login token
+    password dapi203949d8hag9da7f8dylsiduhf
 
 You can also authenticate by [passing a token to Bearer authentication](https://docs.databricks.com/dev-tools/api/latest/authentication.html#pass-token-to-bearer-authentication). To be clear, **it is not recommended to store your credentials directly in your code**. If you are working on Databricks in a notebook, you can use `dbutils.secrets.get()` to avoid printing your token.
 
