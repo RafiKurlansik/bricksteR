@@ -44,7 +44,9 @@ If you are working locally or using [DB Connect](https://docs.databricks.com/dev
     login token
     password <personal-access-token-value>
     
-    example:
+
+For example:
+
     machine company.cloud.databricks.com
     login token
     password dapi203949d8hag9da7f8dylsiduhf
