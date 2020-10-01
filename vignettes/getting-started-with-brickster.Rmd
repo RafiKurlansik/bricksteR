@@ -63,7 +63,7 @@ You can also authenticate by [passing a token to Bearer authentication](https://
 Finally, you will need to identify the workspace URL of your Databricks instance.  On AWS this typically has the form `https://dbc-a64b1209f-d811.cloud.databricks.com`, or if you have a vanity URL it may look more like `https://mycompany.cloud.databricks.com`.  On Azure it will have the form `https://eastus2.azuredatabricks.net`, or whichever region your instance is located in.
 
 ```{r message=FALSE}
-workspace <- "https://demo.cloud.databricks.com"
+workspace <- "https://field-eng.cloud.databricks.com"
 
 # If running in a Databricks Notebook
 # token <- dbutils.secrets.get(scope = "bricksteR", key = "rest_api")
@@ -142,7 +142,8 @@ running_new_job <- create_and_run_job(file = "/Users/rafi.kurlansik/agg_and_wide
                                       name = "Lager Sales Forecasting Job",
                                       notebook_path = "/Users/rafi.kurlansik@databricks.com/agg_and_widen", 
                                       job_config = "default",
-                                      workspace = workspace)
+                                      workspace = workspace,
+                                      overwrite = 'true')
 ```
 
 ### View Jobs and Runs
@@ -161,9 +162,9 @@ If you need to update the config for a job, use `reset_job()`.
 
 ```{r eval=FALSE}
 # JSON string or file path can be passed
-new_config <- "/configs/nightly_model_training.json"
+new_config <- "/Users/rafi.kurlansik/Desktop/nightly_model_training.json"
 
-reset_job(job_id = 31114, new_config, workspace = workspace)
+reset_job(job_id = job_id, new_config = new_config, workspace = workspace)
 ```
 
 ### Delete a Job

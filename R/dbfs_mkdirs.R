@@ -1,18 +1,16 @@
 #'
-#' Start a Databricks cluster.
+#' Create a path on DBFS
 #'
-#' Will start an interactive Databricks cluster.  You can locate the cluster ID in the URL of the cluster configuration
-#' page.  For example:
+#' Create the given directory and necessary parent directories if they do not exist.
+#' If there exists a file (not a directory) at any prefix of the input path, this
+#' call throws an exception with RESOURCE_ALREADY_EXISTS. If this operation fails
+#' it may have succeeded in creating some of the necessary parent directories.
 #'
-#' https://mycompany.cloud.databricks.com/#/setting/clusters/xxxx-xxxxx-xxxxxx/
-#'
-#' Where xxxx-xxxxx-xxxxxx is the cluster ID.
-#'
-#' The API endpoint for terminating a cluster is '2.0/clusters/start'.
+#' The API endpoint for creating a path on DBFS is '2.0/dbfs/mkdirs'.
 #'   For all details on API calls please see the official documentation at
 #' \url{https://docs.databricks.com/dev-tools/api/latest/}.
 #'
-#' @param cluster_id A string containing the unique id for an online Databricks cluster
+#' @param path A string representing the path to create in DBFS
 #' @param workspace A string representing the web workspace of your Databricks
 #' instance. E.g., "https://eastus2.azuredatabricks.net" or
 #' "https://demo.cloud.databricks.com".
@@ -21,28 +19,28 @@
 #' netrc will be used
 #' @param verbose If TRUE, will print the API response to the console.  Defaults to
 #' FALSE.
-#' @param ... Additional options to be passed to \code{data.table::fread} which is used to
-#' parse the API response.
+#' @param ... Additional options to be passed
 #' @return The API response
 #' @examples
-#' cluster_id <- "0818-155203-cheese22"
+#' # No need to include /dbfs/
+#' path <- "/rk/data/new_dir"
 #'
-#' start_cluster(workspace = workspace, cluster_id = cluster_id)
+#' dbfs_mkdirs(path = path, workspace = workspace)
 #' @export
-start_cluster <- function(cluster_id,
-                              workspace,
-                              token = NULL,
-                              verbose = T,
-                              ...) {
+dbfs_mkdirs <- function(path,
+                    workspace,
+                    token = NULL,
+                    verbose = T,
+                    ...) {
 
-  payload <- paste0('{"cluster_id": "', cluster_id, '"}')
+  payload <- paste0('{"path": "', path, '"}')
 
   # Make request, using netrc by default
   if (is.null(token)) {
 
     use_netrc <- httr::config(netrc = 1)
     res <- httr::with_config(use_netrc, {
-      httr::POST(url = paste0(workspace, "/api/2.0/clusters/start"),
+      httr::POST(url = paste0(workspace, "/api/2.0/dbfs/mkdirs"),
                  httr::content_type_json(),
                  body = payload)})
   }
@@ -55,10 +53,11 @@ start_cluster <- function(cluster_id,
     )
 
     # Using token for authentication instead of netrc
-    res <- httr::POST(url = paste0(workspace, "/api/2.0/clusters/start"),
-                      httr::add_headers(.headers = headers),
-                      httr::content_type_json(),
-                      body = payload)
+    res <- httr::POST(url = paste0(workspace, "/api/2.0/dbfs/mkdirs"),
+                     httr::add_headers(.headers = headers),
+                     httr::content_type_json(),
+                     body = payload)
+
   }
 
   # Handling successful API request
@@ -68,7 +67,7 @@ start_cluster <- function(cluster_id,
 
       message(paste0(
         "Status: ", res$status_code[1],
-        "\nCluster \"", cluster_id, "\" started."
+        "\nCreated \"", path, "\":"
       ))
     }
   }
@@ -80,7 +79,7 @@ start_cluster <- function(cluster_id,
 
       message(paste0(
         "Status: ", res$status_code[1],
-        "\nThe request was not successful:\n\n", jsonlite::prettify(res)
+        "\nThe request was not successful:\n\n", suppressMessages(jsonlite::prettify(res))
       ))
     }
   }

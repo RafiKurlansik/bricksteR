@@ -67,7 +67,7 @@ reset_job <- function(job_id = NULL,
     }
 
     # If matched, set job_id and name for consistency between file and webapp
-    config_list <- fromJSON(new_config)
+    config_list <- jsonlite::fromJSON(new_config)
     config_list$job_id <- matches$job_id
     config_list$new_settings$name <- name
 
@@ -77,10 +77,10 @@ reset_job <- function(job_id = NULL,
   else {
 
     # Set the job_id for the config
-    config_list <- fromJSON(new_config)
+    config_list <- jsonlite::fromJSON(new_config)
     config_list$job_id <- job_id
 
-    new_config <- toJSON(config_list, auto_unbox = T)
+    new_config <- jsonlite::toJSON(config_list, auto_unbox = T)
   }
 
 

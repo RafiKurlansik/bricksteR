@@ -108,7 +108,7 @@ export_from_workspace <- function(workspace_path, format,
   if (!is.null(file)) {
 
     conn <- file(filename, "wb")
-    writeBin(content(res, as = "text"), conn)
+    writeBin(httr::content(res, as = "text"), conn)
     close(conn)
 
     message(paste0("File downloaded here: ", filename))
