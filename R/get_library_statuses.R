@@ -131,7 +131,12 @@ get_library_statuses <- function(cluster_id = NULL,
   }
 
   # Return response
-  res
+    reslist <- list(response = res,
+                    response_json = suppressMessages(jsonlite::prettify(res)),
+                    response_list = jsonlite::fromJSON(rawToChar(res$content)),
+                    response_df = as.data.frame(jsonlite::fromJSON(rawToChar(res$content)))
 
+    )
 
+    reslist
 }
