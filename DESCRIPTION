@@ -1,13 +1,13 @@
 Package: bricksteR
 Type: Package
 Title: R Package for Making Databricks Easy to Use.
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: c(
     person("Rafi", "Kurlansik", email = "rafi.kurlansik@databricks.com", role = c("aut", "cre")),
     person("Oliver", "Koernig", email = "oliver.koernig@databricks.com", role = "aut"))
 Maintainer: Rafi Kurlansik <rafi.kurlansik@databricks.com>
 Description: A series of functions to help R users get the most out of Databricks.  Quickly convert your R scripts
-    to a job, check the status of running jobs, move files between DBFS and your local system, and more.  Since the package
+    to a job, check the status of running jobs, move files between DBFS and your local system, manage libraries and more.  Since the package
     uses the Databricks REST API 2.0, you'll need an authentication token for the functions to work.  You can find one under
     'User Settings' in the Databricks web interface. 
 License: MIT
@@ -16,7 +16,7 @@ LazyData: true
 Imports:
     httr,
     jsonlite
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1
 Suggests: 
     knitr,
     rmarkdown,
