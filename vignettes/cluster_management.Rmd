@@ -1,0 +1,120 @@
+---
+title: "Databricks Cluster Management with `bricksteR`"
+author: "Rafi Kurlansik, Solutions Archcitect, Databricks"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r, echo = FALSE, message=FALSE}
+workspace <- "https://field-eng.cloud.databricks.com"
+cluster_id <- "0915-154850-quits57"
+library(bricksteR)
+terminate_response <- terminate_cluster(cluster_id, workspace)
+```
+
+##  Cluster Management
+
+In this vignette, we explore how to manage Databricks clusters programmatically.  In keeping with the theme of `bricksteR`, hopefully these functions will let you leverage Databricks more effectively without having to leave your IDE.  
+
+#### Databricks Clusters 101
+What happens when we create a Databricks cluster?  First, we describe the computational resources needed and their configuration.  Then, if we are using the UI we click on 'Create Cluster'.  At this point Databricks fetches VMs (or 'instances') from the public cloud provider to materialize the cluster in your cloud account. Within a few minutes, you have an Apache Spark cluster at your disposal.  This is, incidentally, the moment when you begin to be billed for Databricks and the public cloud provider.  We'll come back to that.
+
+What happens when we terminate a Databricks cluster?  We simply release the computational resources back to the public cloud provider *and we persist the cluster configuration for reuse*.  This is also when you are no longer billed by Databricks or the public cloud provider.  
+
+In this system, what matters more - the individual machines that make up the cluster or the description of the cluster?  It is clear that individual VMs are essentially ephemeral, and as such they don't matter as much as the cluster specification does.  As long as we have that configuration handy, we can always re-instantiate the same environment.  
+
+**Note:** Before we start using any functions, make sure you've reviewed how to [authenticate](https://github.com/RafiKurlansik/bricksteR#authentication)!  In this vignette I'll be using a `.netrc` file. 
+
+
+#### Starting and Restarting
+To begin using the Clusters API you simply need a `cluster_id` and the URL to your Databricks workspace. We can start a cluster that is currently in a 'terminated' state by using `start_cluster()`:
+
+```{r}
+library(bricksteR)
+
+cluster_id <- "0915-154850-quits57"
+start_response <- start_cluster(cluster_id, workspace)
+```
+
+If we need to restart the cluster, this is also trivially simple.  Be careful though - if you haven't [saved your work](https://github.com/marygracemoesta/R-User-Guide/blob/master/Getting_Started/DBFS.md) it will be lost. 
+
+```{r, echo = F}
+# Waiting for cluster to come online before restarting
+Sys.sleep(300)
+```
+
+```{r}
+restart_response <- restart_cluster(cluster_id, workspace)
+```
+
+Restarting a cluster becomes particularly relevant if you decide to leverage bricksteR for package management.  See the *Library Management* vignette for more.
+
+#### Clusters List
+Another handy function is `clusters_list()`, which will provide detailed information on all of the clusters in the workspace.  There's a *lot* of information available from this API, so it's best to assign it to a variable and work with the data.frame that gets returned.
+
+```
+# Not run
+response <- clusters_list(workspace)
+
+# Access the data.frame
+clusters <- response$response_df
+
+# Get active clusters
+active <- clusters[clusters$state == "RUNNING", c("cluster_id", "state", "start_time")]
+
+```
+
+As we'll see in the next section, it can be useful to know which machines are running and for how long.
+
+#### Terminating 
+
+> *"Last one out, hit the lights..."*
+
+To save on costs, it's a good practice to shut down the cluster at the end of your work day.   Be mindful of your teammates if you are sharing a cluster though!
+
+To turn off the cluster just use `terminate_cluster()`:
+```{r}
+terminate_response <- terminate_cluster(cluster_id, workspace)
+```
+
+#### Cleaning Up Resources
+The default configuration of a cluster is to auto-terminate after 120 minutes, which is great for those times you forget to turn off the cluster at the end of the day (or week...).  However, in the case of clusters that have [RStudio Server installed](https://github.com/marygracemoesta/R-User-Guide/blob/master/Developing_on_Databricks/RStudio_integrations.md) on them, auto-terminate must be disabled.  It can save quite a bit of money to utilize `terminate_cluster()` to clean up any long running resources that have been left on.  
+
+To do so we'll use revisit `clusters_list()`, filtering any results for long running machines without auto-terminate.  We can tell if a cluster has auto-terminate disabled if its auto-terminate minutes is set to 0. 
+
+```{r}
+# Get list of active clusters
+response <- clusters_list(workspace)
+
+## Get active clusters
+clusters <- response$response_df
+active <- clusters[clusters$state == "RUNNING", 
+                   c("cluster_id", "autotermination_minutes", "state", "start_time")]
+
+## Check how long clusters have been running 
+active$start_time <- as.POSIXct(active$start_time/1000, origin = "1970-01-01")
+active$uptime <- Sys.time() - active$start_time
+
+## Filter for clusters with 0 minutes auto-termination 
+to_terminate <- active[active$autotermination_minutes == 0]
+```
+
+With a single call to `terminate_cluster()`, we can shut down these long running resources.  If we wind up with a list of clusters that should be terminated, we can use `lapply()` to take care of all of them at once.
+
+```r
+# To terminate these clusters, we'll apply the terminate_cluster function 
+# to each cluster_id in a list
+termination_list <- as.list(to_terminate$cluster_id)
+
+termination_responses <- lapply(termination_list, terminate_cluster, workspace)
+
+```
+If we put this code in its own script and [run it as a job](https://github.com/RafiKurlansik/bricksteR#automating-r-jobs-on-databricks-with-brickster), we can effectively monitor and automate the termination of extraneous resources in our Databricks workspace!
+
+## Conclusion
+At this point you are equipped with the knowledge and functions to access and manage Databricks clusters programmatically.  As mentioned before, `clusters_list()` returns quite a lot of information so if you are looking to analyze how your team is using Databricks more broadly, this is great dataset to look into.  
+
+If you have any questions, feel free to reach out to me (rafi.kurlansik@databricks.com) or file a [GitHub](https://github.com/RafiKurlansik/bricksteR) issue.

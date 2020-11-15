@@ -1,0 +1,23 @@
+---
+title: "Library Management"
+author: "Rafi Kurlansik, Sr. Solutions Architect, Databricks"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+2. Library Management
+- Library scopes, how to update cluster configuration, single package vs. list of packages
+- Adding custom libraries to the cluster with `dbfs_cp()`
+- Special case of how to update job configuration
+
