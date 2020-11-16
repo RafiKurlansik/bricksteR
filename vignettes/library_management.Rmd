@@ -1,23 +1,97 @@
 ---
-title: "Library Management"
+title: "Package Management for Databricks Clusters"
 author: "Rafi Kurlansik, Sr. Solutions Architect, Databricks"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 4
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
+```{r, echo = FALSE, message=FALSE}
+workspace <- "https://field-eng.cloud.databricks.com"
 ```
 
-2. Library Management
-- Library scopes, how to update cluster configuration, single package vs. list of packages
-- Adding custom libraries to the cluster with `dbfs_cp()`
-- Special case of how to update job configuration
+## Degrees of Environment Control
 
+> *"It's the wild west out here!"*
+
+How much control we exert over an environment is typically determined by a few factors.  Which phase of the software development lifecycle we are in - development or production - and the security requirements of an organization.  
+
+If we are in the development phase and have few security constraints, then a permissive sandbox environment is probably fine.  If the company security policy blocks access to the public internet, then a more restricted sandbox is appropriate.  If we want to promote code to run as part of a production pipeline, we need to ensure that package updates don't break anything.  In this case both code and dependencies need to be tightly version controlled.  
+
+Databricks supports all three of these cases and their variations.  How?  The key insight is that Databricks offers complete isolation of compute resources and their configuration from cluster to cluster, job to job, even user to user.  Part of the configuration of these resources includes a description of their package dependencies.  When we add the packages we need and their versions to the *persistent configuration* of a cluster, we gain control over the environment. 
+
+This vignette explores the use of the Databricks REST API to programmatically manage R packages and their versions.  For a more thorough discussion please see the [Package Management](https://github.com/marygracemoesta/R-User-Guide/blob/master/Developing_on_Databricks/package_management.md) section of the [R User Guide to Databricks](https://github.com/marygracemoesta/R-User-Guide).
+
+## Installing Packages on Interactive Clusters
+In the simplest case one can always use `install.packages()` in their code but there are two tradeoffs - the package will not be installed across the cluster (only where the code was run), and it will not be added to the configuration going forward.  When the cluster is restarted you'll have to run `install.packages()` again.
+
+#### Adding a Single Package
+
+When you use `libraries_install()` from `bricksteR`, the package is installed across the cluster and added to its configuration going forward.  
+
+```{r}
+library(bricksteR)
+
+# Cluster to install on
+cluster_id <- "0915-154850-quits57"
+lib_response <- libraries_install(cluster_id, package = "broom", workspace = workspace)
+```
+`libraries_install` will use [RStudio Public Package Manager](https://packagemanager.rstudio.com/client/#/repos/1/overview) (RPPM) as the default repo.  This is because RStudio has graciously decided to share linux binaries with the community, and Databricks Runtime uses Ubuntu 16.04. 
+
+#### Multiple Packages and Their Versions
+
+If you want to install a list of packages at one time, you can do so with a `data.frame` containing the package names and versions.  In this example we use a snapshot from RPPM to choose the version of the second two packages from those dates. 
+
+```{r}
+pkg_df <- data.frame(package = c("torch", "merTools", "plyr"),
+                     repo = c("https://packagemanager.rstudio.com/all/__linux__/xenial/latest",
+                              "https://packagemanager.rstudio.com/all/__linux__/xenial/318",
+                              "https://packagemanager.rstudio.com/all/__linux__/xenial/236"))
+
+# Apply libraries_install() to each row of our pkg_df
+results <- apply(pkg_df, 1, function(x) {
+  libraries_install(package = x['package'],
+                    repo = x['repo'],
+                    cluster_id,
+                    workspace)
+  })
+
+```
+
+As you can see, we can check on the status of their installation by using `get_library_statuses()`.
+
+```{r}
+lib_statuses <- get_library_statuses(cluster_id, workspace)
+lib_statuses$response_df
+```
+
+#### Custom Packages
+If you aren't pulling your R package from a public repo, you'll need to [upload it to DBFS](https://github.com/marygracemoesta/R-User-Guide/blob/master/Developing_on_Databricks/package_management.md#custom-packages) first. You can do this with `bricksteR` by using the DBFS wrappers.
+
+```
+# Copy local source file to DBFS
+dbfs_mv(from = "/Users/rafi.kurlansik/mypkg.tar.gz", to = "/dbfs/rafi.kurlansik/pkgs/)
+
+# Install on cluster
+install_response <- libraries_install(cluster_id,
+                                      package = "/dbfs/rafi.kurlansik/pkgs/mypkg.tar.gz", 
+                                      repo = NULL, 
+                                      workspace = workspace)
+```
+## Uninstalling Packages
+`libraries_uninstall()` will remove the package from cluster configuration, pending a restart.
+
+```{r}
+uninstall_response <- libraries_uninstall(cluster_id, package = "merTools", workspace)
+```
+
+## Conclusion
+
+By using `libraries_install()` and `libraries_uninstall()` for interactive clusters and (coming soon) `configure_job()` for jobs, you can easily tune the dependencies for your clusters and build the environments you want - be they stable or chaotic.
+
+If you have any questions, feel free to reach out to me (rafi.kurlansik@databricks.com) or file a [GitHub](https://github.com/RafiKurlansik/bricksteR) issue.
