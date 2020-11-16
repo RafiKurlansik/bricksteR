@@ -241,9 +241,11 @@ export_from_workspace(workspace_path = "/Users/rafi.kurlansik@databricks.com/AnR
 
 Passing a `filename` will save the exported data to your local file system. Otherwise it will simply be returned as part of the API response.
 
-Future Plans
+Conclusion and Additional Vignettes
 ------------
 
 That's about all there is to it to get started with automating R on Databricks! Whether you are using `blastula` to email a report or are spinning up a massive cluster to perform ETL or model training, these APIs will make it easy for you to define, schedule, and monitor those jobs from R.
+
+Please note there are now two other vignettes - one for **Package Management** and one for **Cluster Management**.  
 
 Questions or feedback? Feel free to contact me at <rafi.kurlansik@databricks.com>.
