@@ -21,7 +21,7 @@ workspace <- "https://field-eng.cloud.databricks.com"
 
 How much control we exert over an environment is typically determined by a few factors.  Which phase of the software development lifecycle we are in - development or production - and the security requirements of an organization.  
 
-If we are in the development phase and have few security constraints, then a permissive sandbox environment is probably fine.  If the company security policy blocks access to the public internet, then a more restricted sandbox is appropriate.  If we want to promote code to run as part of a production pipeline, we need to ensure that package updates don't break anything.  In this case both code and dependencies need to be tightly version controlled.  
+If we are in the development phase and have few security constraints, then a **permissive sandbox** environment is probably fine.  If the company security policy blocks access to the public internet, then a more **restricted sandbox** is appropriate.  If we want to promote code to run as part of a **production pipeline**, we need to ensure that package updates don't break anything.  In this case both code and dependencies need to be tightly version controlled.  
 
 Databricks supports all three of these cases and their variations.  How?  The key insight is that Databricks offers complete isolation of compute resources and their configuration from cluster to cluster, job to job, even user to user.  Part of the configuration of these resources includes a description of their package dependencies.  When we add the packages we need and their versions to the *persistent configuration* of a cluster, we gain control over the environment. 
 
