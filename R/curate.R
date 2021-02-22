@@ -74,6 +74,7 @@ curate <- function(pkg,
     cat(c("\n\nRemote Gitlab package installed from  ", pkg, " in ", lib))
 
     }
+  }
 
     # Normal installation
     install.packages(pkgs = pkg, repos = repo, lib = tmp_dir, ...)
@@ -83,6 +84,7 @@ curate <- function(pkg,
   # Clean up temp directory
   system(paste0("rm -r ", tmp_dir))
 
-  }
 }
+
+
 
