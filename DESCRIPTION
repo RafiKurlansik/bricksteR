@@ -8,14 +8,15 @@ Authors@R: c(
 Maintainer: Rafi Kurlansik <rafi.kurlansik@databricks.com>
 Description: A series of functions to help R users get the most out of Databricks.  Quickly convert your R scripts
     to a job, check the status of running jobs, move files between DBFS and your local system, manage libraries and more.  Since the package
-    uses the Databricks REST API 2.0, you'll need an authentication token for the functions to work.  You can find one under
+    uses the Databricks REST API 2.0, you'll need an authentication token for most functions to work.  You can find one under
     'User Settings' in the Databricks web interface. 
 License: MIT
 Encoding: UTF-8
 LazyData: true
 Imports:
     httr,
-    jsonlite
+    jsonlite,
+    remotes
 RoxygenNote: 7.1.1
 Suggests: 
     knitr,
