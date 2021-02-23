@@ -10,6 +10,8 @@
 #' shared repo of packages, set the path to a common directory.
 #'
 #' @param user_libpath A string representing the path to install packages in DBFS
+#' @param Rversion boolean.  Should the current version of R be added as a directory in
+#' the path?  Defaults to TRUE.
 #'
 #' @return The user library path
 #' @examples
@@ -18,21 +20,29 @@
 #'
 #' set_library(lib_path = path)
 #' @export
-set_library <- function(lib_path = "/dbfs/Rlib"){
+set_library <- function(lib_path = "/dbfs/Rlib", Rversion = T){
 
   # If using default, add random path to avoid package collisions
   if (lib_path == '/dbfs/Rlib') {
-  user_lib_path <- file.path(lib_path,
-                            round(rnorm(1, sd = 10000)),
-                            getRversion())
-  } else {
+    if(Rversion == T) {
+      user_lib_path <- file.path(lib_path,
+                                 round(rnorm(1, sd = 10000)),
+                                 getRversion())
+    } else {
+      user_lib_path <- file.path(lib_path,
+                                 round(rnorm(1, sd = 10000)))
+    }
+  }
+
+  if (Rversion == T){
     user_lib_path <- file.path(lib_path, getRversion())
+  } else {
+    user_lib_path <- file.path(lib_path)
   }
 
   if (file.exists(user_lib_path) == F) {
     dir.create(user_lib_path, recursive = TRUE)
   }
-
 
   search_path <- .libPaths()
   if (user_lib_path %in% search_path) {
