@@ -45,14 +45,19 @@ curate <- function(pkg,
   # Set up temp directory for installation
   tmp_dir <- tempfile()
   dir.create(tmp_dir)
+  set_library(tmp_dir)
 
   if(!is.null(version)) {
-    remotes::install_version(pkg,
+    remotes::install_version(package = pkg,
                              version = version,
                              repos = "https://cloud.r-project.org",
                              lib = tmp_dir,
                              ...)
 
+    # Remove tmp_dir from .libPaths()
+    .libPaths(c(.libPaths()[-1]))
+
+    # Copy package from tmp_dir to first on .libPaths()
     system(paste0("cp -r ", tmp_dir, "/* ", lib))
     cat(c("Version ", version, " of ", pkg, " installed in ", lib))
   }
@@ -68,23 +73,35 @@ curate <- function(pkg,
     if(git_provider == "github") {
 
       remotes::install_github(repo = pkg, lib = tmp_dir, dependencies = T, ...)
+
+      # Remove tmp_dir from .libPaths()
+      .libPaths(c(.libPaths()[-1]))
+
       system(paste0("cp -r ", tmp_dir, "/* ", lib))
       cat(c("\n\nRemote GitHub package installed from ", pkg, " in ", lib))
 
     } else {
 
-    # Install Gitlab
-    remotes::install_gitlab(repo = pkg, lib = tmp_dir, dependencies = T, ...)
-    system(paste0("cp -r ", tmpDir, "/* ", lib))
-    cat(c("\n\nRemote Gitlab package installed from  ", pkg, " in ", lib))
+      # Install Gitlab
+      remotes::install_gitlab(repo = pkg, lib = tmp_dir, dependencies = T, ...)
 
+      # Remove tmp_dir from .libPaths()
+      .libPaths(c(.libPaths()[-1]))
+
+      system(paste0("cp -r ", tmpDir, "/* ", lib))
+      cat(c("\n\nRemote Gitlab package installed from  ", pkg, " in ", lib))
+
+      }
     }
-  }
 
-    # Normal installation
-    install.packages(pkgs = pkg, repos = repo, lib = tmp_dir, ...)
-    system(paste0("cp -r ", tmp_dir, "/* ", lib))
-    cat(c("Package: ", pkg, " installed in ", lib))
+  # Normal installation
+  install.packages(pkgs = pkg, repos = repo, lib = tmp_dir, ...)
+
+  # Remove tmp_dir from .libPaths()
+  .libPaths(c(.libPaths()[-1]))
+
+  system(paste0("cp -r ", tmp_dir, "/* ", lib))
+  cat(c("Package: ", pkg, " installed in ", lib))
 
   # Clean up temp directory
   system(paste0("rm -r ", tmp_dir))
