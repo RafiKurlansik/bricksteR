@@ -45,7 +45,7 @@ curate <- function(pkg,
   # Set up temp directory for installation
   tmp_dir <- tempfile()
   dir.create(tmp_dir)
-  set_library(tmp_dir)
+  bricksteR::set_library(tmp_dir, Rversion = F)
 
   if(!is.null(version)) {
     remotes::install_version(package = pkg,
