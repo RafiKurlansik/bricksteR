@@ -36,7 +36,7 @@
 #' curate(repo = "jimhester/covr")
 #' @export
 curate <- function(pkg,
-                   repo = "https://packagemanager.rstudio.com/all/__linux__/xenial/latest",
+                   repos = "https://packagemanager.rstudio.com/all/__linux__/xenial/latest",
                    version = NULL,
                    lib = .libPaths()[1],
                    git_provider = NULL,
@@ -45,28 +45,14 @@ curate <- function(pkg,
   # Set up temp directory for installation
   tmp_dir <- tempfile()
   dir.create(tmp_dir)
-  bricksteR::set_library(tmp_dir, Rversion = F)
+  set_library(tmp_dir, Rversion = F)
 
-  if(!is.null(version)) {
-    remotes::install_version(package = pkg,
-                             version = version,
-                             repos = "https://cloud.r-project.org",
-                             lib = tmp_dir,
-                             ...)
-
-    # Remove tmp_dir from .libPaths()
-    .libPaths(c(.libPaths()[-1]))
-
-    # Copy package from tmp_dir to first on .libPaths()
-    system(paste0("cp -r ", tmp_dir, "/* ", lib))
-    cat(c("Version ", version, " of ", pkg, " installed in ", lib))
-  }
-
+  # Check for install from version control
   if(!is.null(git_provider)) {
     git_provider <- tolower(git_provider)
 
     if(!(git_provider %in% c("gitlab", "github"))) {
-      stop("Check your git provider, only \"gitlab\" or \"github\" are supported")
+      stop("Check your git_provider parameter, only \"gitlab\" or \"github\" are supported")
     }
 
     # Install GitHub
@@ -91,17 +77,35 @@ curate <- function(pkg,
       system(paste0("cp -r ", tmpDir, "/* ", lib))
       cat(c("\n\nRemote Gitlab package installed from  ", pkg, " in ", lib))
 
-      }
     }
+  }
 
-  # Normal installation
-  install.packages(pkgs = pkg, repos = repo, lib = tmp_dir, ...)
+  # Check for installing a version
+  if(!is.null(version)) {
+    remotes::install_version(package = pkg,
+                             version = version,
+                             repos = "https://cloud.r-project.org",
+                             lib = tmp_dir,
+                             ...)
 
-  # Remove tmp_dir from .libPaths()
-  .libPaths(c(.libPaths()[-1]))
+    # Remove tmp_dir from .libPaths()
+    .libPaths(c(.libPaths()[-1]))
 
-  system(paste0("cp -r ", tmp_dir, "/* ", lib))
-  cat(c("Package: ", pkg, " installed in ", lib))
+    # Copy package from tmp_dir to first on .libPaths()
+    system(paste0("cp -r ", tmp_dir, "/* ", lib))
+    cat(c("Version ", version, " of ", pkg, " installed in ", lib))
+
+  } else {
+
+    # Normal installation
+    install.packages(pkgs = pkg, repos = repos, lib = tmp_dir, ...)
+
+    # Remove tmp_dir from .libPaths()
+    .libPaths(c(.libPaths()[-1]))
+
+    system(paste0("cp -r ", tmp_dir, "/* ", lib))
+    cat(c("Package: ", pkg, " installed in ", lib))
+  }
 
   # Clean up temp directory
   system(paste0("rm -r ", tmp_dir))
