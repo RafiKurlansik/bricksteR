@@ -47,7 +47,12 @@ curate <- function(pkg,
   dir.create(tmp_dir)
 
   if(!is.null(version)) {
-    remotes::install_version(pkg, version = version, repos = repo, lib = tmp_dir, ...)
+    remotes::install_version(pkg,
+                             version = version,
+                             repos = "https://cloud.r-project.org",
+                             lib = tmp_dir,
+                             ...)
+
     system(paste0("cp -r ", tmp_dir, "/* ", lib))
     cat(c("Version ", version, " of ", pkg, " installed in ", lib))
   }
@@ -62,14 +67,14 @@ curate <- function(pkg,
     # Install GitHub
     if(git_provider == "github") {
 
-      remotes::install_github(repo = pkg, lib = tmp_dir, ...)
+      remotes::install_github(repo = pkg, lib = tmp_dir, dependencies = T, ...)
       system(paste0("cp -r ", tmp_dir, "/* ", lib))
       cat(c("\n\nRemote GitHub package installed from ", pkg, " in ", lib))
 
     } else {
 
     # Install Gitlab
-    remotes::install_gitlab(repo = pkg, lib = tmp_dir, ...)
+    remotes::install_gitlab(repo = pkg, lib = tmp_dir, dependencies = T, ...)
     system(paste0("cp -r ", tmpDir, "/* ", lib))
     cat(c("\n\nRemote Gitlab package installed from  ", pkg, " in ", lib))
 
