@@ -47,6 +47,18 @@ curate <- function(pkg,
   dir.create(tmp_dir)
   set_library(tmp_dir, Rversion = F)
 
+  if(is.null(version) && is.null(git_provider)){
+
+    # Normal installation
+    install.packages(pkgs = pkg, repos = repos, lib = tmp_dir, ...)
+
+    # Remove tmp_dir from .libPaths()
+    .libPaths(c(.libPaths()[-1]))
+
+    system(paste0("cp -r ", tmp_dir, "/* ", dest_lib))
+    cat(c("Package: ", pkg, " installed in ", dest_lib))
+  }
+
   # Check for install from version control
   if(!is.null(git_provider)) {
     git_provider <- tolower(git_provider)
@@ -95,16 +107,6 @@ curate <- function(pkg,
     system(paste0("cp -r ", tmp_dir, "/* ", dest_lib))
     cat(c("Version ", version, " of ", pkg, " installed in ", dest_lib))
 
-  } else {
-
-    # Normal installation
-    install.packages(pkgs = pkg, repos = repos, lib = tmp_dir, ...)
-
-    # Remove tmp_dir from .libPaths()
-    .libPaths(c(.libPaths()[-1]))
-
-    system(paste0("cp -r ", tmp_dir, "/* ", dest_lib))
-    cat(c("Package: ", pkg, " installed in ", dest_lib))
   }
 
   # Clean up temp directory
