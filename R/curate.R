@@ -38,7 +38,7 @@
 curate <- function(pkg,
                    repos = "https://packagemanager.rstudio.com/all/__linux__/xenial/latest",
                    version = NULL,
-                   lib = .libPaths()[1],
+                   dest_lib = .libPaths()[1],
                    git_provider = NULL,
                    ...) {
 
@@ -63,8 +63,8 @@ curate <- function(pkg,
       # Remove tmp_dir from .libPaths()
       .libPaths(c(.libPaths()[-1]))
 
-      system(paste0("cp -r ", tmp_dir, "/* ", lib))
-      cat(c("\n\nRemote GitHub package installed from ", pkg, " in ", lib))
+      system(paste0("cp -r ", tmp_dir, "/* ", dest_lib))
+      cat(c("\n\nRemote GitHub package installed from ", pkg, " in ", dest_lib))
 
     } else {
 
@@ -74,8 +74,8 @@ curate <- function(pkg,
       # Remove tmp_dir from .libPaths()
       .libPaths(c(.libPaths()[-1]))
 
-      system(paste0("cp -r ", tmpDir, "/* ", lib))
-      cat(c("\n\nRemote Gitlab package installed from  ", pkg, " in ", lib))
+      system(paste0("cp -r ", tmpDir, "/* ", dest_lib))
+      cat(c("\n\nRemote Gitlab package installed from  ", pkg, " in ", dest_lib))
 
     }
   }
@@ -92,8 +92,8 @@ curate <- function(pkg,
     .libPaths(c(.libPaths()[-1]))
 
     # Copy package from tmp_dir to first on .libPaths()
-    system(paste0("cp -r ", tmp_dir, "/* ", lib))
-    cat(c("Version ", version, " of ", pkg, " installed in ", lib))
+    system(paste0("cp -r ", tmp_dir, "/* ", dest_lib))
+    cat(c("Version ", version, " of ", pkg, " installed in ", dest_lib))
 
   } else {
 
@@ -103,8 +103,8 @@ curate <- function(pkg,
     # Remove tmp_dir from .libPaths()
     .libPaths(c(.libPaths()[-1]))
 
-    system(paste0("cp -r ", tmp_dir, "/* ", lib))
-    cat(c("Package: ", pkg, " installed in ", lib))
+    system(paste0("cp -r ", tmp_dir, "/* ", dest_lib))
+    cat(c("Package: ", pkg, " installed in ", dest_lib))
   }
 
   # Clean up temp directory
