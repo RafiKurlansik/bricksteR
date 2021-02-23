@@ -12,7 +12,7 @@
 #' (https://packagemanager.rstudio.com/all/__linux__/xenial/latest).  If NULL, specify
 #' the path to a source file in `pkgs`.
 #' @param version The desired version of the package to install.  Defaults to latest.
-#' @param lib String, the path to the library where packages will be installed.  Default
+#' @param dest_lib String, the path to the library where packages will be installed.  Default
 #' is the first path on `.libPaths()`.  It's recommended to use `set_library()` prior to
 #' `curate()`
 #' @param git_provider String, one of "github" or "gitlab".  Default is NULL.

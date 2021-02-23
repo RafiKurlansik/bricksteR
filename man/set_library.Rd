@@ -5,11 +5,14 @@
 \alias{remove_library}
 \title{Set the User Library Path}
 \usage{
-set_library(lib_path = "/dbfs/Rlib")
+set_library(lib_path = "/dbfs/Rlib", Rversion = T)
 
 remove_library(lib_path)
 }
 \arguments{
+\item{Rversion}{boolean.  Should the current version of R be added as a directory in
+the path?  Defaults to TRUE.}
+
 \item{user_libpath}{A string representing the path to install packages in DBFS}
 
 \item{user_lib_path}{A string representing the path to be removed from .libPaths()}
@@ -34,8 +37,6 @@ shared repo of packages, set the path to a common directory.
 path <- "/dbfs/rk/my_packages"
 
 set_library(lib_path = path)
-
-path <- "/dbfs/rk/my_packages"
 
 remove_library(path)
 }

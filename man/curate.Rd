@@ -6,9 +6,9 @@
 \usage{
 curate(
   pkg,
-  repo = "https://packagemanager.rstudio.com/all/__linux__/xenial/latest",
+  repos = "https://packagemanager.rstudio.com/all/__linux__/xenial/latest",
   version = NULL,
-  lib = .libPaths()[1],
+  dest_lib = .libPaths()[1],
   git_provider = NULL,
   ...
 )
@@ -16,20 +16,21 @@ curate(
 \arguments{
 \item{pkg}{String, name of package to install or a valid URL if using GitHub/Gitlab}
 
-\item{repo}{Where to pull the package from.  Default is RStudio Package Manager
-(https://packagemanager.rstudio.com/all/__linux__/xenial/latest).  If NULL, specify
-the path to a source file in `pkgs`.}
-
 \item{version}{The desired version of the package to install.  Defaults to latest.}
 
-\item{lib}{String, the path to the library where packages will be installed.  Default
+\item{dest_lib}{String, the path to the library where packages will be installed.  Default
 is the first path on `.libPaths()`.  It's recommended to use `set_library()` prior to
 `curate()`}
 
 \item{git_provider}{String, one of "github" or "gitlab".  Default is NULL.}
 
 \item{...}{Additional arguments to be passed to `install.packages`,
-`remotes::install_version`, `remotes::install_github`, and `remotes::install_gitlab`.}
+`remotes::install_version`, `remotes::install_github`, and `remotes::install_gitlab`.
+Use this to pass authentication variables to git providers.}
+
+\item{repo}{Where to pull the package from.  Default is RStudio Package Manager
+(https://packagemanager.rstudio.com/all/__linux__/xenial/latest).  If NULL, specify
+the path to a source file in `pkgs`.}
 }
 \value{
 The user library path
