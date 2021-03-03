@@ -19,15 +19,98 @@ workspace <- "https://field-eng.cloud.databricks.com"
 
 > *"It's the wild west out here!"*
 
-How much control we exert over an environment is typically determined by a few factors.  Which phase of the software development lifecycle we are in - development or production - and the security requirements of an organization.  
+To tame the rich open source ecosystem we must ask ourselves - how should we best organize R packages on Databricks?  Any organizational strategy needs to account for the following scenarios at a minimum:
 
-If we are in the development phase and have few security constraints, then an **open sandbox** environment is probably fine.  If the company security policy blocks access to the public internet, then a more **restricted sandbox** is appropriate.  If we want to promote code to run as part of a **production pipeline**, we need to ensure that package updates don't break anything.  In this case both code and dependencies need to be tightly version controlled.  
+* A "sandbox" environment for development
+* Which packages are *system* (or shared) packages vs. *user* packages in the sandbox
+* Package versioning for production jobs
 
-Databricks supports all three of these cases and their variations.  How?  The key insight is that Databricks offers complete isolation of compute resources and their configuration from cluster to cluster, job to job, even user to user.  Part of the configuration of these resources includes a description of their package dependencies.  When we add the packages we need and their versions to the *persistent configuration* of a cluster, we gain control over the environment. 
+The openness of the sandbox environment will vary across organizations, but in every case where more than one user will be on the system you'll need to think about sharing - which packages are users going to share across the system, and which will be isolated to each user?  If you aren't careful here, one user can easily install a package that breaks another users' code.  **A recommended practice is to agree upon core, shared packages and then allow each user to install their own packages in a personal folder.**
 
-This vignette explores the use of the Databricks REST API to programmatically manage R packages and their versions.  For a more thorough discussion please see the [Package Management](https://github.com/marygracemoesta/R-User-Guide/blob/master/Developing_on_Databricks/package_management.md) section of the [R User Guide to Databricks](https://github.com/marygracemoesta/R-User-Guide).
+Lastly, prior to promoting code to run as part of a production job, you'll need to ensure that package updates don't break anything.  In this case both code and dependencies need to be tightly version controlled. This vignette only focuses on setting up the development environment, so we'll save that for another time.
 
-## Installing Packages on Interactive Clusters
+With that said, here's how the `bricksteR` package can help manage packages in the development environment.  
+
+## R Packages and Libraries
+
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Biblioth%C3%A8que_de_l%27Assembl%C3%A9e_Nationale_%28Lunon%29.jpg/1200px-Biblioth%C3%A8que_de_l%27Assembl%C3%A9e_Nationale_%28Lunon%29.jpg" width = 600 height = 400>
+
+Let's start with an analogy.  The books at your local library are shared by the larger community - anyone in town can walk into the library and access its books.  At home you likely have a personal library, which may include books that are not available to everyone in town.  
+
+The R packages you know and love are similar to books - they live in a *library*!  This may be a shared, common library, or your own personal library.  Where are these libraries located?  R libraries live in directories on the filesystem, and when you use `library()` R will look for packages there.  Furthermore, when you use `install.packages()` R will install the package in your library.  
+
+There is a special function to show the libraries that R is currently aware of -  `.libPaths()`.  From the official documentation:
+
+```
+.libPaths gets/sets the library trees within which packages are looked for.
+```
+
+This means that by modifying `.libPaths()` we can effectively tell R when to add a package to our common, shared library or to our own personal library.   
+
+### Setting the Library
+
+`bricksteR` contains the `set_library()` function to update the path that R looks to install and load packages from.  It takes a single argument, `path`, that points to the library location.  
+
+```
+# Install and load bricksteR
+devtools::install_github("RafiKurlansik/bricksteR")
+library(bricksteR)
+
+# Set the path to a personal folder
+set_library(path = "/dbfs/home/rafi.kurlansik@databricks.com/my_r_packages")
+
+# See it added to the paths that R searched for packages
+.libPaths()
+```
+
+**For admins**, you can use this function to install into a shared, system-wide library.  
+
+**For individual users**, this will let you curate your personal library and avoid collisions with other packages on the system. If someone installs a version of a package that conflicts with your work - no problem!  If using a personal library, R will have no idea about what that other user is doing.  Remember, problems generally only crop up when we install (and overwrite) packages into the shared folder.
+
+### Curate a Library
+On Databricks, we recommend installing packages into a personal folder located on DBFS.  This is because DBFS points to cloud storage and will persist packages through a cluster restart, from cluster to cluster, and will generally be faster than installing many packages every time a cluster comes online.  To facilitate a smooth installation onto cloud storage `bricksteR` offers the `curate()` function!
+
+`curate()` serves two key purposes:
+
+1. Provide a single, simple interface to the common functions used to install packages in R.  Today it supports `install.packages`, `install_github`, `install_gitlab`, and `install_version`.
+
+2. Ensure that packages are safely installed and copied to DBFS to persist.
+
+Here a few quick examples of how it is used.
+
+```
+# Don't forget to set_library() !
+set_library(path = "/dbfs/home/rafi.kurlansik@databricks.com/my_r_packages")
+
+# Install latest version of broom into personal library
+curate("broom")
+
+# Install older version of ggplot2
+curate("ggplot2", version = "3.0.0", dependencies = F)
+
+# Install a package from GitHub
+curate(pkg = "RafiKurlansik/bricksteR", git_provider = "github", force = T)
+
+# Check results
+dir("/dbfs/home/rafi.kurlansik@databricks.com/my_r_packages")
+```
+
+You can learn more by checking out the documentation (`?curate` in RStudio), or inspecting the [source code on GitHub](https://github.com/RafiKurlansik/bricksteR/blob/master/R/curate.R).
+
+### Removing a Library
+Let's say you set the wrong library and want to tell R to ignore it.  You can use `remove_library()` to do so.
+
+```
+remove_library(path = "/dbfs/home/rafi.kurlansik@databricks.com/my_r_packages")
+```
+
+## Installing Packages with the Databricks REST API
+
+**Note: This section is best used by smaller teams or single user clusters.** If you are managing a large shared environment, stick to the first method described above.
+
+This section explores the use of the Databricks REST API to programmatically manage R packages and their versions.  For additional discussion please see the [Package Management](https://github.com/marygracemoesta/R-User-Guide/blob/master/Developing_on_Databricks/package_management.md) section of the [R User Guide to Databricks](https://github.com/marygracemoesta/R-User-Guide).
+
+### Installing Packages on Interactive Clusters
 In the simplest case one can always use `install.packages()` in their code but there are two tradeoffs - the package will not be installed across the cluster (only where the code was run), and it will not be added to the configuration going forward.  When the cluster is restarted you'll have to run `install.packages()` again.
 
 #### Adding a Single Package
@@ -83,7 +166,7 @@ install_response <- libraries_install(cluster_id,
                                       repo = NULL, 
                                       workspace = workspace)
 ```
-## Uninstalling Packages
+### Uninstalling Packages
 `libraries_uninstall()` will remove the package from cluster configuration, pending a restart.
 
 ```{r}
