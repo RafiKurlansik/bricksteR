@@ -53,7 +53,7 @@ set_library <- function(lib_path = "/dbfs/Rlib", r_version = F){
   search_path <- c(user_lib_path, search_path)
   .libPaths(search_path)
 
-  cat(c("Library: ", user_lib_path, " added. \n\nUse .libPaths() to see all libraries."))
+  cat(c("Library: ", user_lib_path, " added. \n\nUse .libPaths() to see all libraries.\n\n"))
 }
 
 #' @rdname set_library
@@ -71,5 +71,5 @@ remove_library <- function(lib_path){
     search_path <- setdiff(search_path, lib_path)
     .libPaths(search_path)
   }
-  cat(c("Library: ", lib_path, " removed. \n\nUse .libPaths() to see all  libraries."))
+  cat(c("Library: ", lib_path, " removed. \n\nUse .libPaths() to see all  libraries.\n\n"))
 }
