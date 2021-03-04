@@ -45,7 +45,7 @@ curate <- function(pkg,
   # Set up temp directory for installation
   tmp_dir <- tempfile()
   dir.create(tmp_dir)
-  set_library(tmp_dir, Rversion = F)
+  set_library(tmp_dir, r_version = F)
 
   if(is.null(version) && is.null(git_provider)){
 
