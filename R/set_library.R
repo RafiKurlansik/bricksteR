@@ -24,7 +24,7 @@ set_library <- function(lib_path = "/dbfs/Rlib", r_version = F){
 
   # If using default, add random path to avoid package collisions
   if (lib_path == '/dbfs/Rlib') {
-    if(Rversion == T) {
+    if(r_version == T) {
       user_lib_path <- file.path(lib_path,
                                  round(rnorm(1, sd = 10000)),
                                  getRversion())
