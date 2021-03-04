@@ -20,7 +20,7 @@
 #'
 #' set_library(lib_path = path)
 #' @export
-set_library <- function(lib_path = "/dbfs/Rlib", Rversion = F){
+set_library <- function(lib_path = "/dbfs/Rlib", r_version = F){
 
   # If using default, add random path to avoid package collisions
   if (lib_path == '/dbfs/Rlib') {
