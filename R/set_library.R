@@ -34,7 +34,7 @@ set_library <- function(lib_path = "/dbfs/Rlib", r_version = F){
     }
   }
 
-  if (Rversion == T){
+  if (r_version == T){
     user_lib_path <- file.path(lib_path, getRversion())
   } else {
     user_lib_path <- file.path(lib_path)
