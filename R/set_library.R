@@ -9,8 +9,8 @@
 #' create their own path for package installation.  If building a central
 #' shared repo of packages, set the path to a common directory.
 #'
-#' @param user_libpath A string representing the path to install packages in DBFS
-#' @param Rversion boolean.  Should the current version of R be added as a directory in
+#' @param lib_path A string representing the path to install packages in DBFS
+#' @param r_version boolean.  Should the current version of R be added as a directory in
 #' the path?  Defaults to TRUE.
 #'
 #' @return The user library path
