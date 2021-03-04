@@ -51,7 +51,7 @@ This means that by modifying `.libPaths()` we can effectively tell R when to add
 
 `bricksteR` contains the `set_library()` function to update the path that R looks to install and load packages from.  It takes a single argument, `path`, that points to the library location.  
 
-```
+```{r, eval=FALSE}
 # Install and load bricksteR
 devtools::install_github("RafiKurlansik/bricksteR")
 library(bricksteR)
@@ -78,8 +78,8 @@ On Databricks, we recommend installing packages into a personal folder located o
 
 Here a few quick examples of how it is used.
 
-```
-# Don't forget to set_library() !
+```{r, eval = FALSE}
+# Don't forget to set_library()!
 set_library(path = "/dbfs/home/rafi.kurlansik@databricks.com/my_r_packages")
 
 # Install latest version of broom into personal library
@@ -121,7 +121,7 @@ When you use `libraries_install()` from `bricksteR`, the package is installed ac
 library(bricksteR)
 
 # Cluster to install on
-cluster_id <- "0915-154850-quits57"
+cluster_id <- "0208-155424-fish21"
 lib_response <- libraries_install(cluster_id, package = "broom", workspace = workspace)
 ```
 `libraries_install` will use [RStudio Public Package Manager](https://packagemanager.rstudio.com/client/#/repos/1/overview) (RPPM) as the default repo.  This is because RStudio has graciously decided to share linux binaries with the community, and Databricks Runtime uses Ubuntu 16.04. 
