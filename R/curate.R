@@ -8,8 +8,7 @@
 #' session to session on Databricks.
 #'
 #' @param pkg String, name of package to install or a valid URL if using GitHub/Gitlab
-#' @param repo Where to pull the package from.  Default is RStudio Package Manager
-#' (https://packagemanager.rstudio.com/all/__linux__/xenial/latest).  If NULL, specify
+#' @param repo Where to pull the package from.  Default is https://cloud.r-project.org.  If NULL, specify
 #' the path to a source file in `pkgs`.
 #' @param version The desired version of the package to install.  Defaults to latest.
 #' @param dest_lib String, the path to the library where packages will be installed.  Default
@@ -36,7 +35,7 @@
 #' curate(repo = "jimhester/covr")
 #' @export
 curate <- function(pkg,
-                   repos = "https://packagemanager.rstudio.com/all/__linux__/xenial/latest",
+                   repos = "https://cloud.r-project.org",
                    version = NULL,
                    dest_lib = .libPaths()[1],
                    git_provider = NULL,
