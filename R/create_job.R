@@ -34,8 +34,8 @@
 #' # Passing custom JSON
 #' job_config <- '{"name": "New R Job",
 #'                    "new_cluster": {
-#'                        "spark_version": "5.5.x-scala2.11",
-#'                        "node_type_id": "r3.xlarge",
+#'                        "spark_version": "7.3.x-scala2.12",
+#'                        "node_type_id": "i3.xlarge",
 #'                        "aws_attributes": {
 #'                            "availability": "ON_DEMAND"
 #'                        },
@@ -94,8 +94,8 @@ create_job <- function(name = "R Job",
     job_config <- paste0('{
                          "name": "', name, '",
                          "new_cluster": {
-                         "spark_version": "5.5.x-scala2.11",
-                         "node_type_id": "r3.xlarge",
+                         "spark_version": "7.3.x-scala2.12",
+                         "node_type_id": "i3.xlarge",
                          "num_workers": 2
                          },
                          "email_notifications": {
