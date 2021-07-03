@@ -80,6 +80,7 @@ export_from_workspace <- function(workspace_path, format,
                                   utils::URLencode(workspace_path),
                                   "&direct_download=",
                                   direct_download),
+                     httr::add_headers(headers),
                      httr::content_type_json())
   }
 
